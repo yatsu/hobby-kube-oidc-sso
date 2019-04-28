@@ -1,19 +1,30 @@
 namespaces:
-  development:
+  rook-ceph-system:
     protected: false
     installTiller: false
-    labels:
-      env: development
+  rook-ceph:
+    protected: false
+    installTiller: false
 
 helmRepos:
   stable: https://kubernetes-charts.storage.googleapis.com
   rook-stable: https://charts.rook.io/stable
 
 apps:
-  rook-ceph:
-    namespace: development
+  rook-ceph-system:
+    namespace: rook-ceph-system
     enabled: true
     chart: rook-stable/rook-ceph
     version: v0.9.3
-    name: rook-ceph
+    name: rook-ceph-system
     priority: -20
+    wait: true
+
+  rook-ceph-cluster:
+    namespace: rook-ceph
+    enabled: true
+    chart: ./rook-ceph-cluster
+    version: 0.1.0
+    name: rook-ceph-cluster
+    priority: -19
+    wait: true

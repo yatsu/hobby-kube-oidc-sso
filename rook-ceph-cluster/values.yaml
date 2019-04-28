@@ -1,0 +1,32 @@
+# Default values for rook-ceph-cluster.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# For the latest ceph images, see https://hub.docker.com/r/ceph/ceph/tags
+image:
+  repository: ceph/ceph
+  tag: v13.2.4-20190109
+
+dataDirHostPath: /var/lib/rook
+
+dashboard:
+  enabled: true
+
+mon:
+  count: 3
+  allowMultiplePerNode: true
+
+storage:
+  useAllNodes: true
+  useAllDevices: false
+  config:
+    databaseSizeMB: 1024
+    journalSizeMB: 1024
+
+serviceAccount:
+  osd: rook-ceph-osd
+  mgr: rook-ceph-mgr
+
+system:
+  namespace: rook-ceph-system
+  serviceAccount: rook-ceph-system

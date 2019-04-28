@@ -1,0 +1,24 @@
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  labels:
+    app.kubernetes.io/name: {{ include "rook-ceph-cluster.name" . }}
+    helm.sh/chart: {{ include "rook-ceph-cluster.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  cephVersion:
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+  dataDirHostPath: {{ .Values.dataDirHostPath }}
+  dashboard:
+    enabled: {{ .Values.dashboard.enabled }}
+  mon:
+    count: {{ .Values.mon.count }}
+    allowMultiplePerNode: {{ .Values.mon.allowMultiplePerNode }}
+  storage:
+    useAllNodes: {{ .Values.storage.useAllNodes }}
+    useAllDevices: {{ .Values.storage.useAllDevices }}
+    config:
+      databaseSizeMB: "{{ .Values.storage.config.databaseSizeMB }}"
+      journalSizeMB: "{{ .Values.storage.config.journalSizeMB }}"
