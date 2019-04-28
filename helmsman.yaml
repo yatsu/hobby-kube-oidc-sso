@@ -5,6 +5,14 @@ namespaces:
   rook-ceph:
     protected: false
     installTiller: false
+  cert-manager:
+    protected: false
+    installTiller: false
+    labels:
+      certmanager.k8s.io/disable-validation: "true"
+  ambassador:
+    protected: false
+    installTiller: false
 
 helmRepos:
   stable: https://kubernetes-charts.storage.googleapis.com
@@ -37,3 +45,21 @@ apps:
     name: rook-ceph-block
     priority: -18
     wait: true
+
+  cert-manager-crds:
+    namespace: cert-manager
+    enabled: true
+    chart: ./cert-manager-crds
+    version: 0.1.0
+    name: cert-manager-crds
+    priority: -17
+    wait: true
+
+  cert-manager:
+    namespace: cert-manager
+    enabled: true
+    chart: stable/cert-manager
+    version: v0.6.7
+    name: cert-manager
+    priority: -16
+    wait: false
