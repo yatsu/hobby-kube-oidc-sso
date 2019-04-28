@@ -28,3 +28,12 @@ apps:
     name: rook-ceph-cluster
     priority: -19
     wait: true
+
+  rook-ceph-block:
+    namespace: rook-ceph
+    enabled: true
+    chart: ./rook-ceph-block
+    version: 0.1.0
+    name: rook-ceph-block
+    priority: -18
+    wait: true

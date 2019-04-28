@@ -1,0 +1,13 @@
+apiVersion: ceph.rook.io/v1
+kind: CephBlockPool
+metadata:
+  name: replicapool
+  labels:
+    app.kubernetes.io/name: {{ include "rook-ceph-block.name" . }}
+    helm.sh/chart: {{ include "rook-ceph-block.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  failureDomain: {{ .Values.blockPool.failureDomain }}
+  replicated:
+    size: {{ .Values.blockPool.replicated.size }}

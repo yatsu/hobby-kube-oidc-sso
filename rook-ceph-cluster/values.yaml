@@ -30,3 +30,8 @@ serviceAccount:
 system:
   namespace: rook-ceph-system
   serviceAccount: rook-ceph-system
+
+toolbox:
+  image:
+    repository: rook/ceph
+    tag: v0.9.3

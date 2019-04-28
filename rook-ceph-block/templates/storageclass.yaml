@@ -1,0 +1,16 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: rook-ceph-block
+  labels:
+    app.kubernetes.io/name: {{ include "rook-ceph-block.name" . }}
+    helm.sh/chart: {{ include "rook-ceph-block.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+provisioner: ceph.rook.io/block
+parameters:
+  blockPool: replicapool
+  # The value of "clusterNamespace" MUST be the same as the one in which your rook cluster exist
+  clusterNamespace: {{ .Release.Namespace }}
+  fstype: {{ .Values.storageClass.fstype }}
+reclaimPolicy: {{ .Values.storageClass.reclaimPolicy }}

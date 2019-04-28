@@ -1,0 +1,17 @@
+# Default values for rook-ceph-block.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+blockPool:
+  failureDomain: host
+  replicated:
+    size: 2
+
+storageClass:
+  # Default fstype is `ext4`.
+  fstype: xfs
+
+  # Default reclaimPolicy is "Delete"
+  # Other options are: "Retain", "Recycle"
+  # Documented in https://kubernetes.io/docs/concepts/storage/storage-classes/
+  reclaimPolicy: Retain
