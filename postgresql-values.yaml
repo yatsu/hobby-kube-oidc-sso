@@ -1,0 +1,19 @@
+image:
+  pullPolicy: IfNotPresent
+
+postgresqlDataDir: /data
+
+persistence:
+  enabled: true
+  existingClaim: postgresql-pvc
+  mountPath: /data
+
+securityContext:
+  enabled: true
+  fsGroup: 26
+  runAsUser: 26
+
+initdbScripts:
+  keycloak.sql: |
+    CREATE USER admin WITH PASSWORD 'adminpass';
+    CREATE DATABASE keycloak WITH OWNER admin;

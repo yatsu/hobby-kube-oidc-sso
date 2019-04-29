@@ -1,0 +1,9 @@
+# Default values for ambassador-certs.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# domain: example.com
+# acmeEmail: example@example.com
+# cloudflare:
+#   email: example@example.com
+#   apiKey: abc123

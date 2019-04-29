@@ -1,0 +1,27 @@
+replicaCount: 2
+daemonSet: false
+
+service:
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v1
+      kind: Module
+      name: ambassador
+      ambassador_id: ambassador
+      config:
+        service_port: 8443
+        enable_grpc_web: True
+      ---
+      apiVersion: ambassador/v1
+      kind: Module
+      name: tls
+      ambassador_id: ambassador
+      config:
+        server:
+          enabled: True
+          secret: ambassador-certs
+          redirect_cleartext_from: 8080
+
+prometheusExporter:
+  enabled: true

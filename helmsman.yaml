@@ -5,18 +5,19 @@ namespaces:
   rook-ceph:
     protected: false
     installTiller: false
-  cert-manager:
+  ambassador:
     protected: false
     installTiller: false
     labels:
       certmanager.k8s.io/disable-validation: "true"
-  ambassador:
+  postgresql:
     protected: false
     installTiller: false
 
 helmRepos:
   stable: https://kubernetes-charts.storage.googleapis.com
   rook-stable: https://charts.rook.io/stable
+  jetstack: https://charts.jetstack.io
 
 apps:
   rook-ceph-system:
@@ -47,19 +48,65 @@ apps:
     wait: true
 
   cert-manager-crds:
-    namespace: cert-manager
+    namespace: ambassador
     enabled: true
     chart: ./cert-manager-crds
-    version: 0.1.0
+    version: 0.1.1
     name: cert-manager-crds
     priority: -17
     wait: true
+    valuesFile: ./cert-manager-values.yaml
 
   cert-manager:
-    namespace: cert-manager
+    namespace: ambassador
     enabled: true
-    chart: stable/cert-manager
-    version: v0.6.7
+    chart: jetstack/cert-manager
+    version: v0.7.1
     name: cert-manager
     priority: -16
+    wait: true
+
+  ambassador-certs:
+    namespace: ambassador
+    enabled: true
+    chart: ./ambassador-certs
+    version: 0.1.0
+    name: ambassador-certs
+    priority: -15
+    wait: true
+    set:
+      acmeEmail: $ACME_EMAIL
+      domain: $DOMAIN
+      cloudflare.email: $CLOUDFLARE_EMAIL
+      cloudflare.apiKey: $CLOUDFLARE_APIKEY
+
+  ambassador:
+    namespace: ambassador
+    enabled: true
+    chart: stable/ambassador
+    version: 2.2.2
+    name: ambassador
+    priority: -14
     wait: false
+    valuesFile: ./ambassador-values.yaml
+    setString:
+      namespace.name: ambassador
+
+  postgresql-pvc:
+    namespace: postgresql
+    enabled: true
+    chart: ./postgresql-pvc
+    version: 0.1.0
+    name: postgresql-pvc
+    priority: -13
+    wait: true
+
+  postgresql:
+    namespace: postgresql
+    enabled: true
+    chart: stable/postgresql
+    version: 3.18.3
+    name: postgresql
+    priority: -12
+    wait: true
+    valuesFile: ./postgresql-values.yaml
