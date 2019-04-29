@@ -15,5 +15,6 @@ securityContext:
 
 initdbScripts:
   keycloak.sql: |
-    CREATE USER admin WITH PASSWORD 'adminpass';
-    CREATE DATABASE keycloak WITH OWNER admin;
+    CREATE DATABASE keycloak WITH OWNER postgres;
+
+postgresqlPassword: postgres

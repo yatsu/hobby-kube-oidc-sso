@@ -13,6 +13,9 @@ namespaces:
   postgresql:
     protected: false
     installTiller: false
+  redis:
+    protected: false
+    installTiller: false
 
 helmRepos:
   stable: https://kubernetes-charts.storage.googleapis.com
@@ -98,7 +101,7 @@ apps:
     chart: ./postgresql-pvc
     version: 0.1.0
     name: postgresql-pvc
-    priority: -13
+    priority: -17
     wait: true
 
   postgresql:
@@ -107,6 +110,25 @@ apps:
     chart: stable/postgresql
     version: 3.18.3
     name: postgresql
-    priority: -12
+    priority: -16
     wait: true
     valuesFile: ./postgresql-values.yaml
+
+  redis-pvc:
+    namespace: redis
+    enabled: true
+    chart: ./redis-pvc
+    version: 0.1.0
+    name: redis-pvc
+    priority: -17
+    wait: true
+
+  redis:
+    namespace: redis
+    enabled: true
+    chart: stable/redis
+    version: 7.0.0
+    name: redis
+    priority: -16
+    wait: true
+    valuesFile: ./redis-values.yaml

@@ -1,0 +1,14 @@
+cluster:
+  enabled: false
+  slaveCount: 1
+
+persistence:
+  existingClaim: redis-pvc
+
+master:
+  persistence:
+    enabled: true
+
+slave:
+  persistence:
+    enabled: false
