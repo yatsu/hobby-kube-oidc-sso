@@ -4,6 +4,8 @@
 
 ## 1. Setup Kubernetes Cluster
 
+### 1-1. Getting Kubernetes Provisioning
+
 Clone [hobby-kube/provisioning](https://github.com/hobby-kube/provisioning).
 
 ```sh
@@ -11,9 +13,11 @@ $ git clone https://github.com/hobby-kube/provisioning
 $ cd provisioning
 ```
 
-Before executing Terraform, disable `CNAME: *` from Cloudflare DNS settings because you will need a record for ACME to generate TLS cert.
+### 1-2. Disabling DNS Wildcard
 
-Edit `dns/cloudflare/main.tf`
+You have to disable the DNS wildcard (`CNAME *`) so that Cert Manager can add a record `_acme-challenge` to setup certs (See [Issuing an ACME certificate using DNS validation](https://docs.cert-manager.io/en/latest/tutorials/acme/dns-validation.html) for details).
+
+Edit `dns/cloudflare/main.tf`:
 
 ```diff
 @@ -37,15 +37,15 @@ resource "cloudflare_record" "domain" {
@@ -40,6 +44,37 @@ Edit `dns/cloudflare/main.tf`
 +# }
 ```
 
+### 1-3. Modifying NodePort Range
+
+[Ambassador doc](https://www.getambassador.io/user-guide/bare-metal/#exposing-ambassador-via-host-network) says we have two ways to deploy Ambassador on a bare metal Kubernetes cluster:
+
+1. Exposing Ambassador via NodePort
+2. Exposing Ambassador via Host Network
+
+We choose NodePort with allowing Services to use TCP port under 30000. This seems to be so far the best way for our hobby setup.
+
+Edit `service/kubernetes/templates/master-configuration.yml`:
+
+```diff
+@@ -10,6 +10,8 @@ certificatesDir: /etc/kubernetes/pki
+ apiServer:
+   certSANs:
+   ${cert_sans}
++  extraArgs:
++    service-node-port-range: 80-32767
+ etcd:
+   external:
+     endpoints:
+```
+
+### 1-4. Deploying Kubernetes
+
+This example uses [Hetzner Cloud](https://www.hetzner.com/) for cloud service and [Cloudflare](https://dash.cloudflare.com) for DNS service. You can choose other cloud services, but regarding DNS, Cloudflare is the only one available. If you want to use other DNS services, you have to edit some files.
+
+Make sure your Cloudflare SSL setting is "Full" (Navigate: Crypto -> SSL).
+
+Set environment variables:
+
 ```sh
 $ export TF_VAR_hcloud_token="abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012a"
 $ export TF_VAR_hcloud_ssh_keys='["who@localhost.local"]'
@@ -56,70 +91,42 @@ $ terraform plan
 $ terraform apply
 ```
 
-## 2. Update kubeapiserver Settings
+## 2. Installing Apps
 
-(This step should be improved later)
+### 2-1. Tool Setup
 
-We need to launch Ambassador on TCP port `80` and `443`. The following doc describe how to setup Ambassador on a bare metal Kubernetes cluster.
-
-[Deploying Ambassador on a Bare Metal Kubernetes Installation](https://www.getambassador.io/user-guide/bare-metal/)
-
-We choose the first method "Exposing Ambassador via NodePort" because it has restriction configuring Ambassador modules by Service metadata.
-
-However, you have to manually configure kube-apiserver because by default Kubernetes does not allow binding TCP port under 30000 to NodePorts.
-
-Login the master node and edit `/etc/kubernetes/manifests/kube-apiserver.yaml` as follows
-
-```diff
-@@ -34,6 +34,7 @@
-     - --service-cluster-ip-range=10.96.0.0/12
-     - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
-     - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
-+    - --service-node-port-range=80-32767
-     image: k8s.gcr.io/kube-apiserver:v1.14.1
-     imagePullPolicy: IfNotPresent
-     livenessProbe:
-```
-
-Restart kubelet.
-
-```sh
-$ systemctl restart kubelet
-```
-
-The above manual step is necessary because I still can not find a way to automate it. I have edited `service/kubernetes/templates/master-configuration.yml` as follows but it does not affect.
-
-```diff
-@@ -14,6 +14,8 @@ etcd:
-   external:
-     endpoints:
-     ${etcd_endpoints}
-+apiServerExtraArgs:
-+  service-node-port-range: "80-32767"
- ---
- apiVersion: kubelet.config.k8s.io/v1beta1
- kind: KubeletConfiguration
-```
-
-```sh
-$ systemctl restart kubelet
-```
+Install the following tools:
 
 * [Helm](https://helm.sh/)
 * [helm-diff](https://github.com/databus23/helm-diff)
 * [Helmsman](https://github.com/Praqma/helmsman)
-* [onessl](https://github.com/kubepack/onessl)
+
+Initialize Helm:
 
 ```sh
-$ cd somewhere/hobby-managed-kube
+$ cd somewhere/hobby-kube-sso
 $ make helm-init
 ```
 
-* `TILLER_NAMESPACE`
-* `TILLER_SERVICE_ACCOUNT`
-* `TILLER_CLUSTER_ROLE`
-* `TILLER_CLUSTER_ROLE_BINDING`
+Create `.env` file:
 
 ```sh
-$ alias hm="helmsman -f helmsman.yaml"
+DOMAIN="example.com"
+ACME_EMAIL="admin@example.com"
+CLOUDFLARE_EMAIL="admin@example.com"
+CLOUDFLARE_APIKEY="abcd0123abcd0123abcd0123abcd0123abcd0"
+KEYCLOAK_USERNAME="admin"
+KEYCLOAK_PASSWORD="adminpass"
+```
+
+Execute helmsman:
+
+```sh
+$ helmsman -f helmsman.yaml apply
+```
+
+Open Keycloak with your browser:
+
+```
+https://<your-domain>/auth/
 ```
