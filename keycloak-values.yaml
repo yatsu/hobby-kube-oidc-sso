@@ -10,7 +10,7 @@ keycloak:
         name: keycloak-http
         prefix: /auth/
         rewrite: ""
-        service: keycloak-http
+        service: keycloak-http.keycloak
 
   persistence:
     dbVendor: postgres

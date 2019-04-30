@@ -153,4 +153,5 @@ apps:
     valuesFile: ./keycloak-values.yaml
     setString:
       clusterDomain: $DOMAIN
+      keycloak.username: $KEYCLOAK_USERNAME
       keycloak.password: $KEYCLOAK_PASSWORD
