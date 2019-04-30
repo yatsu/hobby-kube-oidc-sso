@@ -15,6 +15,7 @@ securityContext:
 
 initdbScripts:
   keycloak.sql: |
-    CREATE DATABASE keycloak WITH OWNER postgres;
+    CREATE USER dbuser WITH PASSWORD 'dbpass';
+    CREATE DATABASE keycloak WITH OWNER dbuser;
 
 postgresqlPassword: postgres

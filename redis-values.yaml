@@ -12,3 +12,5 @@ master:
 slave:
   persistence:
     enabled: false
+
+usePassword: false

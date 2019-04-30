@@ -1,0 +1,27 @@
+keycloak:
+  basepath: auth
+
+  service:
+    annotations:
+      getambassador.io/config: |
+        ---
+        apiVersion: ambassador/v1
+        kind: Mapping
+        name: keycloak-http
+        prefix: /auth/
+        rewrite: ""
+        service: keycloak-http
+
+  persistence:
+    dbVendor: postgres
+    dbName: keycloak
+    dbHost: postgresql-postgresql.postgresql
+    dbPort: 5432
+    dbUser: dbuser
+    dbPassword: dbpass
+
+  username: keycloak
+  # password: keycloak
+
+test:
+  enabled: false

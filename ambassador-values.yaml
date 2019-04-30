@@ -1,27 +1,84 @@
-replicaCount: 2
+image:
+  repository: quay.io/datawire/ambassador
+  tag: 0.60.2
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
 daemonSet: false
 
+# hostNetwork:
+#   enabled: true
+#
+#   http:
+#     enabled: true
+#     port: 80
+#
+#   https:
+#     enabled: true
+#     port: 443
+
+env:
+  STATSD_ENABLED: false
+
 service:
+  type: NodePort
+
+  http:
+    enabled: true
+    port: 8080
+    targetPort: 8080
+    nodePort: 80
+
+  https:
+    enabled: true
+    port: 8443
+    targetPort: 8443
+    nodePort: 443
+
   annotations:
     getambassador.io/config: |
       ---
       apiVersion: ambassador/v1
       kind: Module
       name: ambassador
-      ambassador_id: ambassador
       config:
         service_port: 8443
-        enable_grpc_web: True
       ---
       apiVersion: ambassador/v1
       kind: Module
       name: tls
-      ambassador_id: ambassador
       config:
         server:
           enabled: True
-          secret: ambassador-certs
           redirect_cleartext_from: 8080
+          secret: ambassador-certs
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/master
+            operator: Exists
+
+tolerations:
+  - key: node-role.kubernetes.io/master
+    operator: Equal
+    effect: NoSchedule
+
+resources:
+  limits:
+    cpu: 1
+    memory: 400Mi
+  requests:
+    cpu: 200m
+    memory: 100Mi
+
+# securityContext:
+#   runAsUser: 0
+
+podAnnotations:
+  sidecar.istio.io/inject: "false"
 
 prometheusExporter:
-  enabled: true
+  enabled: false

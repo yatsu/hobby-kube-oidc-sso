@@ -1,3 +1,6 @@
+settings:
+  reverseDelete: true
+
 namespaces:
   rook-ceph-system:
     protected: false
@@ -14,6 +17,9 @@ namespaces:
     protected: false
     installTiller: false
   redis:
+    protected: false
+    installTiller: false
+  keycloak:
     protected: false
     installTiller: false
 
@@ -86,6 +92,7 @@ apps:
   ambassador:
     namespace: ambassador
     enabled: true
+    # chart: ./ambassador
     chart: stable/ambassador
     version: 2.2.2
     name: ambassador
@@ -103,6 +110,7 @@ apps:
     name: postgresql-pvc
     priority: -17
     wait: true
+    timeout: 1200
 
   postgresql:
     namespace: postgresql
@@ -122,6 +130,7 @@ apps:
     name: redis-pvc
     priority: -17
     wait: true
+    timeout: 1200
 
   redis:
     namespace: redis
@@ -132,3 +141,16 @@ apps:
     priority: -16
     wait: true
     valuesFile: ./redis-values.yaml
+
+  keycloak:
+    namespace: keycloak
+    enabled: true
+    chart: stable/keycloak
+    version: 4.10.1
+    name: keycloak
+    priority: -13
+    wait: true
+    valuesFile: ./keycloak-values.yaml
+    setString:
+      clusterDomain: $DOMAIN
+      keycloak.password: $KEYCLOAK_PASSWORD
