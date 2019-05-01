@@ -108,6 +108,8 @@ $ cd somewhere/hobby-kube-sso
 $ make helm-init
 ```
 
+### 2-2. Installing Apps with Helmsman
+
 Create `.env` file:
 
 ```sh

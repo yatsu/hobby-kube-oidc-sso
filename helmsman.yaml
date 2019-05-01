@@ -22,6 +22,12 @@ namespaces:
   keycloak:
     protected: false
     installTiller: false
+  foo:
+    protected: false
+    installTiller: false
+  bar:
+    protected: false
+    installTiller: false
 
 helmRepos:
   stable: https://kubernetes-charts.storage.googleapis.com
@@ -92,7 +98,6 @@ apps:
   ambassador:
     namespace: ambassador
     enabled: true
-    # chart: ./ambassador
     chart: stable/ambassador
     version: 2.2.2
     name: ambassador
@@ -155,3 +160,23 @@ apps:
       clusterDomain: $DOMAIN
       keycloak.username: $KEYCLOAK_USERNAME
       keycloak.password: $KEYCLOAK_PASSWORD
+
+  example-foo:
+    namespace: foo
+    enabled: true
+    chart: ./example-app
+    version: 0.1.0
+    name: example-foo
+    priority: -12
+    wait: false
+    valuesFile: ./example-foo-values.yaml
+
+  example-bar:
+    namespace: bar
+    enabled: true
+    chart: ./example-app
+    version: 0.1.0
+    name: example-bar
+    priority: -12
+    wait: false
+    valuesFile: ./example-bar-values.yaml

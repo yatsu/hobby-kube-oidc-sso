@@ -1,0 +1,12 @@
+nameOverride: example-bar
+fullnameOverride: example-bar
+
+service:
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v1
+      kind: Mapping
+      name: bar-mapping
+      prefix: /bar
+      service: example-bar.bar

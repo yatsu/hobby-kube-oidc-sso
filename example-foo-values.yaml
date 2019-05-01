@@ -1,0 +1,12 @@
+nameOverride: example-foo
+fullnameOverride: example-foo
+
+service:
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v1
+      kind: Mapping
+      name: foo-mapping
+      prefix: /foo
+      service: example-foo.foo
