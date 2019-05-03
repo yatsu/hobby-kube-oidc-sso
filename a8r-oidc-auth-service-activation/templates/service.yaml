@@ -24,6 +24,18 @@ metadata:
       prefix: /oidc/
       rewrite: ""
       service: {{ include "a8r-oidc-auth-service-activation.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }}
+      {{- if not (eq (len .Values.kubeApiServer) 0) }}
+      ---
+      apiVersion: ambassador/v1
+      kind: Mapping
+      name: kube-api-mapping
+      prefix: /api/
+      rewrite: /api/
+      tls: true
+      host_rewrite: kube-apiserver
+      timeout_ms: 600000
+      service: {{ .Values.kubeApiServer }}
+      {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:

@@ -10,3 +10,7 @@ service:
   port: 80
   selector:
     name: a8r-oidc-auth-service
+
+# Set the location of kube-apiserver to expose it public as /api/.
+# Otherwise, set to empty "".
+kubeApiServer: kubernetes.default:443

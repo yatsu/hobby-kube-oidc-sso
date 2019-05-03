@@ -13,6 +13,9 @@ redis:
 
 sessionSecret: a8r-auth-sess
 
+# Enable sending "Authorization: Bearer <id-token>" to upstream services
+enableBearerIdToken: true
+
 debug: "a8r-oidc-auth-service:info"
 
 postInstall:

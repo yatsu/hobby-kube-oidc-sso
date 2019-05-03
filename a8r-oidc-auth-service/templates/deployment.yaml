@@ -46,6 +46,10 @@ spec:
             {{- end }}
             - name: SESSION_SECRET
               value: {{ .Values.sessionSecret | quote }}
+            {{- if .Values.enableBearerIdToken }}
+            - name: ENABLE_BEARER_ID_TOKEN
+              value: "true"
+            {{- end }}
             - name: DEBUG
               value: {{ .Values.debug | quote }}
             - name: DEBUG_HIDE_DATE

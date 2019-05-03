@@ -1,0 +1,117 @@
+diff --git a/dns/cloudflare/main.tf b/dns/cloudflare/main.tf
+index 9fb5613..35e3dd6 100644
+--- a/dns/cloudflare/main.tf
++++ b/dns/cloudflare/main.tf
+@@ -37,16 +37,6 @@ resource "cloudflare_record" "domain" {
+   proxied = true
+ }
+ 
+-resource "cloudflare_record" "wildcard" {
+-  depends_on = ["cloudflare_record.domain"]
+-
+-  domain  = "${var.domain}"
+-  name    = "*"
+-  value   = "${var.domain}"
+-  type    = "CNAME"
+-  proxied = false
+-}
+-
+ output "domains" {
+   value = ["${cloudflare_record.hosts.*.hostname}"]
+ }
+diff --git a/main.tf b/main.tf
+index 5cda27b..f48d01e 100644
+--- a/main.tf
++++ b/main.tf
+@@ -121,10 +121,14 @@ module "etcd" {
+ module "kubernetes" {
+   source = "./service/kubernetes"
+ 
+-  count          = "${var.node_count}"
+-  connections    = "${module.provider.public_ips}"
+-  cluster_name   = "${var.domain}"
+-  vpn_interface  = "${module.wireguard.vpn_interface}"
+-  vpn_ips        = "${module.wireguard.vpn_ips}"
+-  etcd_endpoints = "${module.etcd.endpoints}"
++  count               = "${var.node_count}"
++  connections         = "${module.provider.public_ips}"
++  cluster_name        = "${var.domain}"
++  vpn_interface       = "${module.wireguard.vpn_interface}"
++  vpn_ips             = "${module.wireguard.vpn_ips}"
++  oidc_issuer_url     = "${var.oidc_issuer_url}"
++  oidc_username_claim = "${var.oidc_username_claim}"
++  oidc_groups_claim   = "${var.oidc_groups_claim}"
++  oidc_client_id      = "${var.oidc_client_id}"
++  etcd_endpoints      = "${module.etcd.endpoints}"
+ }
+diff --git a/service/kubernetes/main.tf b/service/kubernetes/main.tf
+index e4b9c2c..661fc97 100644
+--- a/service/kubernetes/main.tf
++++ b/service/kubernetes/main.tf
+@@ -24,6 +24,22 @@ variable "overlay_cidr" {
+   default = "10.96.0.0/16"
+ }
+ 
++variable "oidc_issuer_url" {
++  type = "string"
++}
++
++variable "oidc_username_claim" {
++  type = "string"
++}
++
++variable "oidc_groups_claim" {
++  type = "string"
++}
++
++variable "oidc_client_id" {
++  type = "string"
++}
++
+ resource "random_string" "token1" {
+   length  = 6
+   upper   = false
+@@ -88,6 +104,10 @@ data "template_file" "master-configuration" {
+ 
+   vars {
+     api_advertise_addresses = "${element(var.vpn_ips, 0)}"
++    oidc_issuer_url         = "${var.oidc_issuer_url}"
++    oidc_username_claim     = "${var.oidc_username_claim}"
++    oidc_groups_claim       = "${var.oidc_groups_claim}"
++    oidc_client_id          = "${var.oidc_client_id}"
+     etcd_endpoints          = "- ${join("\n    - ", var.etcd_endpoints)}"
+     cert_sans               = "- ${element(var.connections, 0)}"
+   }
+diff --git a/service/kubernetes/templates/master-configuration.yml b/service/kubernetes/templates/master-configuration.yml
+index 3a79224..4a26ca4 100644
+--- a/service/kubernetes/templates/master-configuration.yml
++++ b/service/kubernetes/templates/master-configuration.yml
+@@ -10,6 +10,12 @@ certificatesDir: /etc/kubernetes/pki
+ apiServer:
+   certSANs:
+   ${cert_sans}
++  extraArgs:
++    service-node-port-range: 80-32767
++    oidc-issuer-url: ${oidc_issuer_url}
++    oidc-username-claim: ${oidc_username_claim}
++    oidc-groups-claim: ${oidc_groups_claim}
++    oidc-client-id: ${oidc_client_id}
+ etcd:
+   external:
+     endpoints:
+diff --git a/variables.tf b/variables.tf
+index b268638..eda0219 100644
+--- a/variables.tf
++++ b/variables.tf
+@@ -117,3 +117,11 @@ variable "google_managed_zone" {
+ variable "google_credentials_file" {
+   default = ""
+ }
++
++variable "oidc_issuer_url" {}
++
++variable "oidc_username_claim" {}
++
++variable "oidc_groups_claim" {}
++
++variable "oidc_client_id" {}
