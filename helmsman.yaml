@@ -13,6 +13,9 @@ namespaces:
     installTiller: false
     labels:
       certmanager.k8s.io/disable-validation: "true"
+  auth:
+    protected: false
+    installTiller: false
   postgresql:
     protected: false
     installTiller: false
@@ -104,8 +107,6 @@ apps:
     priority: -14
     wait: false
     valuesFile: ./ambassador-values.yaml
-    setString:
-      namespace.name: ambassador
 
   postgresql-pvc:
     namespace: postgresql
@@ -157,9 +158,32 @@ apps:
     wait: true
     valuesFile: ./keycloak-values.yaml
     setString:
-      clusterDomain: $DOMAIN
       keycloak.username: $KEYCLOAK_USERNAME
       keycloak.password: $KEYCLOAK_PASSWORD
+
+  a8r-oidc-auth-service:
+    namespace: auth
+    enabled: true
+    chart: ./a8r-oidc-auth-service
+    version: 0.1.0
+    name: a8r-oidc-auth-service
+    priority: -12
+    wait: true
+    setString:
+      oidc.provider: $OIDC_PROVIDER
+      oidc.clientId: $OIDC_CLIENT_ID
+      oidc.redirectUri: $OIDC_REDIRECT_URI
+      sessionSecret: $SESSION_SECRET
+      debug: $OIDC_DEBUG
+
+  a8r-oidc-auth-service-activation:
+    namespace: auth
+    enabled: true
+    chart: ./a8r-oidc-auth-service-activation
+    version: 0.1.0
+    name: a8r-oidc-auth-service-activation
+    priority: -11
+    wait: false
 
   example-foo:
     namespace: foo

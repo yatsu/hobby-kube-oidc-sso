@@ -12,12 +12,13 @@ spec:
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  commonName: {{ required ".Values.domain is required" .Values.domain }}
+  commonName: "*.{{ required ".Values.domain is required" .Values.domain }}"
   dnsNames:
-    - {{ required ".Values.domain is required" .Values.domain }}
+    - "{{ required ".Values.domain is required" .Values.domain }}"
   acme:
     config:
       - dns01:
           provider: cloudflare
         domains:
-          - {{ required ".Values.domain is required" .Values.domain }}
+          - "*.{{ required ".Values.domain is required" .Values.domain }}"
+          - "{{ required ".Values.domain is required" .Values.domain }}"

@@ -119,6 +119,27 @@ CLOUDFLARE_EMAIL="admin@example.com"
 CLOUDFLARE_APIKEY="abcd0123abcd0123abcd0123abcd0123abcd0"
 KEYCLOAK_USERNAME="admin"
 KEYCLOAK_PASSWORD="adminpass"
+OIDC_PROVIDER="https://example.com/auth/realms/example"
+OIDC_CLIENT_ID="example-client"
+OIDC_REDIRECT_URI="https://example.com/oidc/callback"
+SESSION_SECRET="a8r-auth-sess"
+OIDC_DEBUG="a8r-oidc-auth-service:*"
+```
+
+Or export these environment variables from your shell manually:
+
+```sh
+export DOMAIN="example.com"
+export ACME_EMAIL="admin@example.com"
+export CLOUDFLARE_EMAIL="admin@example.com"
+export CLOUDFLARE_APIKEY="abcd0123abcd0123abcd0123abcd0123abcd0"
+export KEYCLOAK_USERNAME="admin"
+export KEYCLOAK_PASSWORD="adminpass"
+export OIDC_PROVIDER="https://example.com/auth/realms/example"
+export OIDC_CLIENT_ID="example-client"
+export OIDC_REDIRECT_URI="https://example.com/oidc/callback"
+export SESSION_SECRET="a8r-auth-sess"
+export OIDC_DEBUG="a8r-oidc-auth-service:*"
 ```
 
 Execute helmsman:

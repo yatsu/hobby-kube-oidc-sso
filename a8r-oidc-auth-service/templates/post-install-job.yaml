@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "a8r-oidc-auth-service.fullname" . }}-post-install
+  labels:
+    app.kubernetes.io/name: {{ include "a8r-oidc-auth-service.name" . }}
+    helm.sh/chart: {{ include "a8r-oidc-auth-service.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "a8r-oidc-auth-service.fullname" . }}-post-install
+      labels:
+        app.kubernetes.io/name: {{ include "a8r-oidc-auth-service.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: post-install-job
+        image: alpine:3.3
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sleep", "{{ .Values.postInstall.sleepSeconds }}"]

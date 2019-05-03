@@ -8,9 +8,13 @@ persistence:
 master:
   persistence:
     enabled: true
+    size: 100Mi
 
 slave:
   persistence:
     enabled: false
+    size: 100Mi
 
 usePassword: false
+
+# password: redis

@@ -1,0 +1,12 @@
+# Default values for a8r-oidc-auth-service-activation.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  selector:
+    name: a8r-oidc-auth-service

@@ -1,4 +1,6 @@
 image:
+  repository: bitnami/postgresql
+  tag: 10.7.0
   pullPolicy: IfNotPresent
 
 postgresqlDataDir: /data
@@ -12,6 +14,9 @@ securityContext:
   enabled: true
   fsGroup: 26
   runAsUser: 26
+
+replication:
+  enabled: false
 
 initdbScripts:
   keycloak.sql: |
