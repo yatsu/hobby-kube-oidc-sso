@@ -156,6 +156,7 @@ apps:
     name: keycloak
     priority: -13
     wait: true
+    timeout: 600
     valuesFile: ./keycloak-values.yaml
     setString:
       keycloak.username: $KEYCLOAK_USERNAME
@@ -172,8 +173,12 @@ apps:
     setString:
       oidc.provider: $OIDC_PROVIDER
       oidc.clientId: $OIDC_CLIENT_ID
-      oidc.redirectUri: $OIDC_REDIRECT_URI
+      oidc.redirectUri: https://$DOMAIN/oidc/callback
       sessionSecret: $SESSION_SECRET
+      clusterName: $CLUSTER_NAME
+      kubeApiUrl: https://$DOMAIN
+      kubectlContext: $KUBECTL_CONTEXT
+      kubectlPagePath: /
       debug: $OIDC_DEBUG
 
   a8r-oidc-auth-service-activation:
@@ -184,6 +189,10 @@ apps:
     name: a8r-oidc-auth-service-activation
     priority: -11
     wait: false
+    setString:
+      domain: $DOMAIN
+      kubectlPagePath: /
+      kubectlAssetsPath: /assets
 
   example-foo:
     namespace: foo

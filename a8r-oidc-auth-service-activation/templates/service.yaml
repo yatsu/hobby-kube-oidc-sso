@@ -1,3 +1,4 @@
+{{- $kubeApiServer := .Values.kubeApiServer }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -25,16 +26,34 @@ metadata:
       rewrite: ""
       service: {{ include "a8r-oidc-auth-service-activation.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }}
       {{- if not (eq (len .Values.kubeApiServer) 0) }}
+      {{- range $path := .Values.kubeApiPath }}
       ---
       apiVersion: ambassador/v1
       kind: Mapping
-      name: kube-api-mapping
-      prefix: /api/
-      rewrite: /api/
+      name: kube-api-mapping-{{ $path }}
+      prefix: {{ $path }}
+      rewrite: ""
       tls: true
       host_rewrite: kube-apiserver
       timeout_ms: 600000
-      service: {{ .Values.kubeApiServer }}
+      service: {{ $kubeApiServer }}
+      {{- end }}
+      {{- end }}
+      {{- if not (eq (len .Values.kubectlPagePath) 0) }}
+      ---
+      apiVersion: ambassador/v1
+      kind: Mapping
+      name: kubectl-assets-mapping
+      prefix: {{ .Values.kubectlAssetsPath }}
+      rewrite: /assets
+      service: {{ include "a8r-oidc-auth-service-activation.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }}
+      ---
+      apiVersion: ambassador/v1
+      kind: Mapping
+      name: kubectl-mapping
+      prefix: {{ .Values.kubectlPagePath }}
+      rewrite: /kubectl
+      service: {{ include "a8r-oidc-auth-service-activation.fullname" . }}.{{ .Release.Namespace }}:{{ .Values.service.port }}
       {{- end }}
 spec:
   type: {{ .Values.service.type }}

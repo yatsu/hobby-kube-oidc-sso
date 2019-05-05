@@ -6,6 +6,9 @@ oidc:
   provider: https://example.com/auth/realms/example
   clientId: example-client
   redirectUri: https://example.com/oidc/callback
+  skipPath:
+    - /auth
+    # - /ambassador/v0/diag
 
 redis:
   address: redis-master.redis:6379
@@ -16,7 +19,26 @@ sessionSecret: a8r-auth-sess
 # Enable sending "Authorization: Bearer <id-token>" to upstream services
 enableBearerIdToken: true
 
+clusterName: example-cluster
+kubeApiUrl: https://example.com
+kubeApiPath:
+  - /api
+  - /logs
+  - /metrics
+  - /swagger
+  - /ui
+  - /version
+kubectlContext: example-cluster
+
+# Set the URL path of the kubectl configuration page to enable it
+# Otherwise, set to empty ""
+kubectlPagePath: /kubectl
+
 debug: "a8r-oidc-auth-service:info"
+
+# NODE_ENV
+# 'production' hides system internal messages such as stack traces
+nodeEnv: development
 
 postInstall:
   sleepSeconds: 20

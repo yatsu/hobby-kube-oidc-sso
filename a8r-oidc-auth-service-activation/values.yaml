@@ -2,6 +2,26 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+domain: example.com
+
+# Set the location of kube-apiserver to expose it public as /api/.
+# Otherwise, set to empty ""
+kubeApiServer: kubernetes.default:443
+
+kubeApiPath:
+  - /api
+  - /logs
+  - /metrics
+  - /swagger
+  - /ui
+  - /version
+
+# Set the URL path of the kubectl configuration page to enable it
+# Otherwise, set to empty ""
+kubectlPagePath: /kubectl
+
+kubectlAssetsPath: /kubectl/assets
+
 nameOverride: ""
 fullnameOverride: ""
 
@@ -10,7 +30,3 @@ service:
   port: 80
   selector:
     name: a8r-oidc-auth-service
-
-# Set the location of kube-apiserver to expose it public as /api/.
-# Otherwise, set to empty "".
-kubeApiServer: kubernetes.default:443

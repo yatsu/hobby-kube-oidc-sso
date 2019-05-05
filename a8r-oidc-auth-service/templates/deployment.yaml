@@ -37,7 +37,7 @@ spec:
             - name: OIDC_REDIRECT_URI
               value: {{ .Values.oidc.redirectUri }}
             - name: OIDC_SKIP_PATH
-              value: "/auth:/ambassador/v0/diag"
+              value: {{ .Values.oidc.skipPath | join ":" }}
             - name: REDIS_ADDRESS
               value: {{ .Values.redis.address }}
             {{- if not (eq (len .Values.redis.password) 0) }}
@@ -50,10 +50,22 @@ spec:
             - name: ENABLE_BEARER_ID_TOKEN
               value: "true"
             {{- end }}
+            - name: CLUSTER_NAME
+              value: {{ .Values.clusterName }}
+            - name: KUBE_API_URL
+              value: {{ .Values.kubeApiUrl }}
+            - name: KUBE_API_PATH
+              value: {{ .Values.kubeApiPath | join ":" }}
+            - name: KUBECTL_CONTEXT
+              value: {{ .Values.kubectlContext }}
+            - name: KUBECTL_PAGE_PATH
+              value: {{ .Values.kubectlPagePath }}
             - name: DEBUG
               value: {{ .Values.debug | quote }}
             - name: DEBUG_HIDE_DATE
               value: "true"
+            - name: NODE_ENV
+              value: {{ .Values.nodeEnv }}
           livenessProbe:
             httpGet:
               path: /healthz
