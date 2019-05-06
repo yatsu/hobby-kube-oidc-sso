@@ -22,6 +22,9 @@ namespaces:
   redis:
     protected: false
     installTiller: false
+  prometheus:
+    protected: false
+    installTiller: false
   keycloak:
     protected: false
     installTiller: false
@@ -45,7 +48,9 @@ apps:
     version: v0.9.3
     name: rook-ceph-system
     priority: -20
+    purge: true
     wait: true
+    valuesFile: rook-ceph-values.yaml
 
   rook-ceph-cluster:
     namespace: rook-ceph
@@ -54,6 +59,7 @@ apps:
     version: 0.1.0
     name: rook-ceph-cluster
     priority: -19
+    purge: true
     wait: true
 
   rook-ceph-block:
@@ -63,6 +69,7 @@ apps:
     version: 0.1.0
     name: rook-ceph-block
     priority: -18
+    purge: true
     wait: true
 
   cert-manager-crds:
@@ -72,6 +79,7 @@ apps:
     version: 0.1.1
     name: cert-manager-crds
     priority: -17
+    purge: true
     wait: true
     valuesFile: ./cert-manager-values.yaml
 
@@ -82,6 +90,7 @@ apps:
     version: v0.7.1
     name: cert-manager
     priority: -16
+    purge: true
     wait: true
 
   ambassador-certs:
@@ -91,6 +100,7 @@ apps:
     version: 0.1.0
     name: ambassador-certs
     priority: -15
+    purge: true
     wait: true
     set:
       acmeEmail: $ACME_EMAIL
@@ -105,28 +115,9 @@ apps:
     version: 2.2.2
     name: ambassador
     priority: -14
+    purge: true
     wait: false
     valuesFile: ./ambassador-values.yaml
-
-  postgresql-pvc:
-    namespace: postgresql
-    enabled: true
-    chart: ./postgresql-pvc
-    version: 0.1.0
-    name: postgresql-pvc
-    priority: -17
-    wait: true
-    timeout: 1200
-
-  postgresql:
-    namespace: postgresql
-    enabled: true
-    chart: stable/postgresql
-    version: 3.18.3
-    name: postgresql
-    priority: -16
-    wait: true
-    valuesFile: ./postgresql-values.yaml
 
   redis-pvc:
     namespace: redis
@@ -135,8 +126,9 @@ apps:
     version: 0.1.0
     name: redis-pvc
     priority: -17
+    purge: true
     wait: true
-    timeout: 1200
+    timeout: 3600
 
   redis:
     namespace: redis
@@ -145,8 +137,31 @@ apps:
     version: 7.0.0
     name: redis
     priority: -16
+    purge: true
     wait: true
     valuesFile: ./redis-values.yaml
+
+  postgresql-pvc:
+    namespace: postgresql
+    enabled: true
+    chart: ./postgresql-pvc
+    version: 0.1.0
+    name: postgresql-pvc
+    priority: -17
+    purge: true
+    wait: true
+    timeout: 3600
+
+  postgresql:
+    namespace: postgresql
+    enabled: true
+    chart: stable/postgresql
+    version: 3.18.3
+    name: postgresql
+    priority: -16
+    purge: true
+    wait: true
+    valuesFile: ./postgresql-values.yaml
 
   keycloak:
     namespace: keycloak
@@ -155,6 +170,7 @@ apps:
     version: 4.10.1
     name: keycloak
     priority: -13
+    purge: true
     wait: true
     timeout: 600
     valuesFile: ./keycloak-values.yaml
@@ -169,6 +185,7 @@ apps:
     version: 0.1.0
     name: a8r-oidc-auth-service
     priority: -12
+    purge: true
     wait: true
     valuesFile: ./a8r-oidc-auth-service-values.yaml
     setString:
@@ -191,6 +208,7 @@ apps:
     version: 0.1.0
     name: a8r-oidc-auth-service-activation
     priority: -11
+    purge: true
     wait: false
     setString:
       domain: $DOMAIN
@@ -199,20 +217,22 @@ apps:
 
   example-foo:
     namespace: foo
-    enabled: true
+    enabled: false
     chart: ./example-app
     version: 0.1.0
     name: example-foo
     priority: -12
+    purge: true
     wait: false
     valuesFile: ./example-foo-values.yaml
 
   example-bar:
     namespace: bar
-    enabled: true
+    enabled: false
     chart: ./example-app
     version: 0.1.0
     name: example-bar
     priority: -12
+    purge: true
     wait: false
     valuesFile: ./example-bar-values.yaml

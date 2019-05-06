@@ -99,6 +99,15 @@ index 3a79224..4a26ca4 100644
  etcd:
    external:
      endpoints:
+diff --git a/service/swap/templates/90-kubelet-extras.conf b/service/swap/templates/90-kubelet-extras.conf
+index c7fd95a..59f9184 100644
+--- a/service/swap/templates/90-kubelet-extras.conf
++++ b/service/swap/templates/90-kubelet-extras.conf
+@@ -1,2 +1,2 @@
+ [Service]
+-Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"
+\ No newline at end of file
++Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false --volume-plugin-dir=/usr/libexec/kubernetes/kubelet-plugins/volume/exec"
 diff --git a/variables.tf b/variables.tf
 index b268638..eda0219 100644
 --- a/variables.tf

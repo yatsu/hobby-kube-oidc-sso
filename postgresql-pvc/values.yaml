@@ -4,4 +4,4 @@
 
 resources:
   requests:
-    storage: 500Mi
+    storage: 200Mi

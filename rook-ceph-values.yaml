@@ -1,0 +1,8 @@
+# image:
+#   prefix: rook
+#   repository: rook/ceph
+#   tag: v1.0.0
+#   pullPolicy: IfNotPresent
+
+agent:
+  flexVolumeDirPath: /usr/libexec/kubernetes/kubelet-plugins/volume/exec

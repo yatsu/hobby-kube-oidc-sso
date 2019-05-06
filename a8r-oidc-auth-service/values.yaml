@@ -50,8 +50,10 @@ replicaCount: 1
 
 image:
   repository: yatsu/a8r-oidc-auth-service
-  tag: latest
-  pullPolicy: Always
+  tag: 0.1.0
+  # tag: latest
+  pullPolicy: IfNotPresent
+  # pullPolicy: Always
 
 nameOverride: ""
 fullnameOverride: ""

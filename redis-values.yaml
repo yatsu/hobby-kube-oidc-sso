@@ -1,5 +1,5 @@
 cluster:
-  enabled: false
+  enabled: true
   slaveCount: 1
 
 persistence:
