@@ -19,6 +19,9 @@ sessionSecret: a8r-auth-sess
 # Enable sending "Authorization: Bearer <id-token>" to upstream services
 enableBearerIdToken: true
 
+
+# Settings for kubectl configuraion page
+title: Example Cluster
 clusterName: example-cluster
 kubeApiUrl: https://example.com
 kubeApiPath:

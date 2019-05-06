@@ -170,7 +170,9 @@ apps:
     name: a8r-oidc-auth-service
     priority: -12
     wait: true
+    valuesFile: ./a8r-oidc-auth-service-values.yaml
     setString:
+      topUrl: https://$DOMAIN
       oidc.provider: $OIDC_PROVIDER
       oidc.clientId: $OIDC_CLIENT_ID
       oidc.redirectUri: https://$DOMAIN/oidc/callback
@@ -179,6 +181,7 @@ apps:
       kubeApiUrl: https://$DOMAIN
       kubectlContext: $KUBECTL_CONTEXT
       kubectlPagePath: /
+      title: $CLUSTER_NAME
       debug: $OIDC_DEBUG
 
   a8r-oidc-auth-service-activation:

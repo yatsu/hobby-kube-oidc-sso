@@ -28,6 +28,8 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
+            - name: TOP_URL
+              value: {{ .Values.topUrl }}
             - name: OIDC_SCOPE
               value: "openid profile"
             - name: OIDC_PROVIDER
@@ -60,6 +62,8 @@ spec:
               value: {{ .Values.kubectlContext }}
             - name: KUBECTL_PAGE_PATH
               value: {{ .Values.kubectlPagePath }}
+            - name: TITLE
+              value: {{ .Values.title }}
             - name: DEBUG
               value: {{ .Values.debug | quote }}
             - name: DEBUG_HIDE_DATE
