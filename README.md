@@ -22,9 +22,9 @@ Kubernetes manifests to setup OIDC single sign-on on a [hobby-kube](https://gith
 ## Prerequisite
 
 * Registered domain name
-* A Cloud service suggested by [hobby-kube/guide](https://github.com/hobby-kube/guide)
+* Account of one of the cloud services suggested by [hobby-kube/guide](https://github.com/hobby-kube/guide)
 * [Cloudflare](https://dash.cloudflare.com) account
-  * You can choose another DNS service, but you need to edit `helmsman.yaml`
+  * You can choose another DNS service, but you will have to edit `helmsman.yaml` and a Helm values file
   * Make sure your Cloudflare SSL setting is "Full" (Navigate: Crypto -> SSL)
 * Tools
   * [Terraform](https://www.terraform.io/)
