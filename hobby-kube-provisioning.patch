@@ -1,3 +1,24 @@
+diff --git a/dns/aws/main.tf b/dns/aws/main.tf
+index b50b4a6..0ec7178 100644
+--- a/dns/aws/main.tf
++++ b/dns/aws/main.tf
+@@ -46,16 +46,6 @@ resource "aws_route53_record" "domain" {
+   records = ["${element(var.public_ips, 0)}"]
+ }
+ 
+-resource "aws_route53_record" "wildcard" {
+-  depends_on = ["aws_route53_record.domain"]
+-
+-  zone_id = "${data.aws_route53_zone.selected_domain.zone_id}"
+-  name    = "*"
+-  type    = "CNAME"
+-  ttl     = "300"
+-  records = ["${data.aws_route53_zone.selected_domain.name}"]
+-}
+-
+ output "domains" {
+   value = ["${aws_route53_record.hosts.*.name}"]
+ }
 diff --git a/dns/cloudflare/main.tf b/dns/cloudflare/main.tf
 index 9fb5613..35e3dd6 100644
 --- a/dns/cloudflare/main.tf
@@ -18,6 +39,27 @@ index 9fb5613..35e3dd6 100644
 -
  output "domains" {
    value = ["${cloudflare_record.hosts.*.hostname}"]
+ }
+diff --git a/dns/google/main.tf b/dns/google/main.tf
+index d475994..0532aa7 100644
+--- a/dns/google/main.tf
++++ b/dns/google/main.tf
+@@ -42,16 +42,6 @@ resource "google_dns_record_set" "domain" {
+   rrdatas      = ["${element(var.public_ips, 0)}"]
+ }
+ 
+-resource "google_dns_record_set" "wildcard" {
+-  depends_on = ["google_dns_record_set.domain"]
+-
+-  name         = "*.${var.domain}."
+-  type         = "CNAME"
+-  ttl          = 300
+-  managed_zone = "${var.managed_zone}"
+-  rrdatas      = ["${var.domain}."]
+-}
+-
+ output "domains" {
+   value = ["${google_dns_record_set.hosts.*.name}"]
  }
 diff --git a/main.tf b/main.tf
 index 5cda27b..f48d01e 100644

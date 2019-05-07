@@ -14,10 +14,8 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-prod
     dns01:
+{{- with .Values.acme.providers }}
       providers:
-        - name: cloudflare
-          cloudflare:
-            email: {{ required ".Values.cloudflare.email is required" .Values.cloudflare.email }}
-            apiKeySecretRef:
-              name: cloudflare-api-key
-              key: api-key
+{{ toYaml . | indent 8 }}
+{{- end }}
+

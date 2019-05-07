@@ -105,8 +105,12 @@ apps:
     set:
       acmeEmail: $ACME_EMAIL
       domain: $DOMAIN
-      cloudflare.email: $CLOUDFLARE_EMAIL
-      cloudflare.apiKey: $CLOUDFLARE_APIKEY
+      acme.apiKey: $CLOUDFLARE_APIKEY
+      acme.providers[0].name: cloudflare
+      acme.providers[0].cloudflare.email: $CLOUDFLARE_EMAIL
+      acme.providers[0].cloudflare.apiKeySecretRef.name: acme-api-key
+      acme.providers[0].cloudflare.apiKeySecretRef.key: api-key
+      # All keys inside the array must be specified to leave them
 
   ambassador:
     namespace: ambassador
@@ -128,7 +132,7 @@ apps:
     priority: -17
     purge: true
     wait: true
-    timeout: 3600
+    timeout: 600
 
   redis:
     namespace: redis
@@ -150,7 +154,7 @@ apps:
     priority: -17
     purge: true
     wait: true
-    timeout: 3600
+    timeout: 600
 
   postgresql:
     namespace: postgresql
@@ -180,7 +184,7 @@ apps:
 
   a8r-oidc-auth-service:
     namespace: auth
-    enabled: true
+    enabled: false
     chart: ./a8r-oidc-auth-service
     version: 0.1.0
     name: a8r-oidc-auth-service
@@ -203,7 +207,7 @@ apps:
 
   a8r-oidc-auth-service-activation:
     namespace: auth
-    enabled: true
+    enabled: false
     chart: ./a8r-oidc-auth-service-activation
     version: 0.1.0
     name: a8r-oidc-auth-service-activation

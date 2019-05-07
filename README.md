@@ -1,9 +1,11 @@
 # hobby-kube-oidc-sso
 
-This is a Kubernetes manifests to setup OIDC single sign-on for a [hobby-kube](https://github.com/hobby-kube/guide) cluster.
+Kubernetes manifests to setup OIDC single sign-on on a [hobby-kube](https://github.com/hobby-kube/guide) cluster.
 
 * [Rook](https://rook.io/)
   * Storage manager for Kubernetes
+* [cert-manager](https://github.com/jetstack/cert-manager)
+  * TLS certs manager
 * [Ambassador](https://www.getambassador.io/)
   * API gateway
 * [Keycloak](https://www.keycloak.org/)
@@ -19,12 +21,11 @@ This is a Kubernetes manifests to setup OIDC single sign-on for a [hobby-kube](h
 
 ## Prerequisite
 
-* Service Accounts
-  * A Cloud service suggested by [hobby-kube/guide](https://github.com/hobby-kube/guide)
-  * [Cloudflare](https://dash.cloudflare.com) for DNS
-    * Currently only Cloudflare is available
-      * (To use other DNS services, you have to edit some files)
-    * Make sure your Cloudflare SSL setting is "Full" (Navigate: Crypto -> SSL)
+* Registered domain name
+* A Cloud service suggested by [hobby-kube/guide](https://github.com/hobby-kube/guide)
+* [Cloudflare](https://dash.cloudflare.com) account
+  * You can choose another DNS service, but you need to edit `helmsman.yaml`
+  * Make sure your Cloudflare SSL setting is "Full" (Navigate: Crypto -> SSL)
 * Tools
   * [Terraform](https://www.terraform.io/)
   * [Helm](https://helm.sh/)
@@ -37,149 +38,21 @@ Make sure they are available in your environment.
 
 ### 1-1. Get hobby-kube/provisioning
 
-Clone [hobby-kube/provisioning](https://github.com/hobby-kube/provisioning).
+Clone [hobby-kube/provisioning](https://github.com/hobby-kube/provisioning) and [hobby-kube-oidc-sso](https://github.com/yatsu/hobby-kube-oidc-sso):
 
 ```sh
 $ git clone https://github.com/hobby-kube/provisioning
+$ git clone https://github.com/yatsu/hobby-kube-oidc-sso
 $ cd provisioning
 ```
 
-### 1-2. Apply the Patch for hobby-kube/provisioning
+### 1-2. Apply the Patch to hobby-kube/provisioning
 
-Apply this patch:
-
-```diff
-diff --git a/dns/cloudflare/main.tf b/dns/cloudflare/main.tf
-index 9fb5613..35e3dd6 100644
---- a/dns/cloudflare/main.tf
-+++ b/dns/cloudflare/main.tf
-@@ -37,16 +37,6 @@ resource "cloudflare_record" "domain" {
-   proxied = true
- }
- 
--resource "cloudflare_record" "wildcard" {
--  depends_on = ["cloudflare_record.domain"]
--
--  domain  = "${var.domain}"
--  name    = "*"
--  value   = "${var.domain}"
--  type    = "CNAME"
--  proxied = false
--}
--
- output "domains" {
-   value = ["${cloudflare_record.hosts.*.hostname}"]
- }
-diff --git a/main.tf b/main.tf
-index 5cda27b..f48d01e 100644
---- a/main.tf
-+++ b/main.tf
-@@ -121,10 +121,14 @@ module "etcd" {
- module "kubernetes" {
-   source = "./service/kubernetes"
- 
--  count          = "${var.node_count}"
--  connections    = "${module.provider.public_ips}"
--  cluster_name   = "${var.domain}"
--  vpn_interface  = "${module.wireguard.vpn_interface}"
--  vpn_ips        = "${module.wireguard.vpn_ips}"
--  etcd_endpoints = "${module.etcd.endpoints}"
-+  count               = "${var.node_count}"
-+  connections         = "${module.provider.public_ips}"
-+  cluster_name        = "${var.domain}"
-+  vpn_interface       = "${module.wireguard.vpn_interface}"
-+  vpn_ips             = "${module.wireguard.vpn_ips}"
-+  oidc_issuer_url     = "${var.oidc_issuer_url}"
-+  oidc_username_claim = "${var.oidc_username_claim}"
-+  oidc_groups_claim   = "${var.oidc_groups_claim}"
-+  oidc_client_id      = "${var.oidc_client_id}"
-+  etcd_endpoints      = "${module.etcd.endpoints}"
- }
-diff --git a/service/kubernetes/main.tf b/service/kubernetes/main.tf
-index e4b9c2c..661fc97 100644
---- a/service/kubernetes/main.tf
-+++ b/service/kubernetes/main.tf
-@@ -24,6 +24,22 @@ variable "overlay_cidr" {
-   default = "10.96.0.0/16"
- }
- 
-+variable "oidc_issuer_url" {
-+  type = "string"
-+}
-+
-+variable "oidc_username_claim" {
-+  type = "string"
-+}
-+
-+variable "oidc_groups_claim" {
-+  type = "string"
-+}
-+
-+variable "oidc_client_id" {
-+  type = "string"
-+}
-+
- resource "random_string" "token1" {
-   length  = 6
-   upper   = false
-@@ -88,6 +104,10 @@ data "template_file" "master-configuration" {
- 
-   vars {
-     api_advertise_addresses = "${element(var.vpn_ips, 0)}"
-+    oidc_issuer_url         = "${var.oidc_issuer_url}"
-+    oidc_username_claim     = "${var.oidc_username_claim}"
-+    oidc_groups_claim       = "${var.oidc_groups_claim}"
-+    oidc_client_id          = "${var.oidc_client_id}"
-     etcd_endpoints          = "- ${join("\n    - ", var.etcd_endpoints)}"
-     cert_sans               = "- ${element(var.connections, 0)}"
-   }
-diff --git a/service/kubernetes/templates/master-configuration.yml b/service/kubernetes/templates/master-configuration.yml
-index 3a79224..4a26ca4 100644
---- a/service/kubernetes/templates/master-configuration.yml
-+++ b/service/kubernetes/templates/master-configuration.yml
-@@ -10,6 +10,12 @@ certificatesDir: /etc/kubernetes/pki
- apiServer:
-   certSANs:
-   ${cert_sans}
-+  extraArgs:
-+    service-node-port-range: 80-32767
-+    oidc-issuer-url: ${oidc_issuer_url}
-+    oidc-username-claim: ${oidc_username_claim}
-+    oidc-groups-claim: ${oidc_groups_claim}
-+    oidc-client-id: ${oidc_client_id}
- etcd:
-   external:
-     endpoints:
-diff --git a/service/swap/templates/90-kubelet-extras.conf b/service/swap/templates/90-kubelet-extras.conf
-index c7fd95a..59f9184 100644
---- a/service/swap/templates/90-kubelet-extras.conf
-+++ b/service/swap/templates/90-kubelet-extras.conf
-@@ -1,2 +1,2 @@
- [Service]
--Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"
-\ No newline at end of file
-+Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false --volume-plugin-dir=/usr/libexec/kubernetes/kubelet-plugins/volume/exec"
-diff --git a/variables.tf b/variables.tf
-index b268638..eda0219 100644
---- a/variables.tf
-+++ b/variables.tf
-@@ -117,3 +117,11 @@ variable "google_managed_zone" {
- variable "google_credentials_file" {
-   default = ""
- }
-+
-+variable "oidc_issuer_url" {}
-+
-+variable "oidc_username_claim" {}
-+
-+variable "oidc_groups_claim" {}
-+
-+variable "oidc_client_id" {}
-```
+Apply [the patch](https://github.com/yatsu/hobby-kube-oidc-sso/blob/master/hobby-kube-provisioning.patch).
 
 ```sh
 $ cd provisioning
-$ patch -p1 < /somewhere/hobby-kube-oidc-sso/hobby-kube-provisioning.patch
+$ patch -p1 < ../hobby-kube-oidc-sso/hobby-kube-provisioning.patch
 ```
 
 Modifications to `hobby-kube/provisioning`:
@@ -224,36 +97,33 @@ Rook Agent will be launched with this environment variable:
 FLEXVOLUME_DIR_PATH=/usr/libexec/kubernetes/kubelet-plugins/volume/exec
 ```
 
-See [FlexVolume Configuration]([Rook Docs](https://www.projectatomic.io/) for more details.
+See [FlexVolume Configuration](https://www.projectatomic.io/) for more details.
 
 ### 1-3. Deploying Kubernetes
-
-This example uses [Hetzner Cloud](https://www.hetzner.com/) for cloud service. You can choose another service.
 
 Set environment variables:
 
 ```sh
-$ export TF_VAR_node_count="3"
-$ export TF_VAR_hcloud_type="cx21"
-$ export TF_VAR_hcloud_image="ubuntu-16.04"
-$ export TF_VAR_hcloud_token="abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012a"
-$ export TF_VAR_hcloud_ssh_keys='["who@localhost.local"]'
-$ export TF_VAR_domain=example.com
-$ export TF_VAR_cloudflare_email="admin@example.com"
-$ export TF_VAR_cloudflare_token="abcd0123abcd0123abcd0123abcd0123abcd0"
+export TF_VAR_node_count="3"
+export TF_VAR_hcloud_type="cx21"
+export TF_VAR_hcloud_token="abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012abcXYZ012a"
+export TF_VAR_hcloud_ssh_keys='["who@localhost.local"]'
+export TF_VAR_domain="example.com"
+export TF_VAR_cloudflare_email="admin@example.com"
+export TF_VAR_cloudflare_token="abcd0123abcd0123abcd0123abcd0123abcd0"
 ```
 
-* Set `hcloud_type` to `cx11` if you want to reduce costs (and machine resources)
-* `hcloud_image` must be a Linux distribution whose kernel supports RBD module
-  * It is required by Rook (See [Prerequisites of Rook](https://rook.io/docs/rook/v1.0/k8s-pre-reqs.html))
+This example uses [Hetzner Cloud](https://www.hetzner.com/) for cloud service. You can choose another service if you would like to. The cheapest hcloud_type `cx11` is also available but may not be enough to launch all apps. Calculate the required resources and the cost yourself.
 
-Execute Terraform.
+Execute Terraform:
 
 ```sh
 $ terraform init
 $ terraform plan
 $ terraform apply
 ```
+
+This takes around 8 minutes.
 
 ## 2. Installing Apps
 
@@ -262,7 +132,7 @@ $ terraform apply
 Initialize Helm for your Kubernetes cluster:
 
 ```sh
-$ cd somewhere/hobby-kube-oidc-sso
+$ cd ../hobby-kube-oidc-sso
 $ make helm-init
 ```
 
@@ -333,7 +203,7 @@ Execute helmsman:
 $ helmsman -f helmsman.yaml --apply
 ```
 
-This takes very long time especially on creating Ceph block storages.
+This takes around 10 minutes.
 
 ### 2-4. Keycloak Setting
 
@@ -376,7 +246,7 @@ Execute helmsman again:
 $ helmsman -f helmsman.yaml --apply
 ```
 
-That's it!
+Wait until all Pods are ready.
 
 Now you can open your site with your browser and see SSO is working.
 

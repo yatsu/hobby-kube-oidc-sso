@@ -3,7 +3,17 @@
 # Declare variables to be passed into your templates.
 
 # domain: example.com
-# acmeEmail: example@example.com
-# cloudflare:
-#   email: example@example.com
-#   apiKey: abc123
+
+# DNS01 Challenge Provider
+# https://docs.cert-manager.io/en/latest/tasks/acme/configuring-dns01/
+
+acme:
+  # apiKey: xyz
+
+  providers:
+    - name: cloudflare
+      cloudflare:
+        email: example@example.com
+        apiKeySecretRef:
+          name: acme-api-key
+          key: api-key
