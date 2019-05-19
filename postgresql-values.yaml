@@ -1,19 +1,11 @@
 image:
   repository: bitnami/postgresql
-  tag: 10.7.0
+  tag: 11.3.0
   pullPolicy: IfNotPresent
-
-postgresqlDataDir: /data
 
 persistence:
   enabled: true
-  existingClaim: postgresql-pvc
-  mountPath: /data
-
-securityContext:
-  enabled: true
-  fsGroup: 26
-  runAsUser: 26
+  size: 200Mi
 
 replication:
   enabled: false

@@ -145,26 +145,16 @@ apps:
     wait: true
     valuesFile: ./redis-values.yaml
 
-  postgresql-pvc:
-    namespace: postgresql
-    enabled: true
-    chart: ./postgresql-pvc
-    version: 0.1.0
-    name: postgresql-pvc
-    priority: -17
-    purge: true
-    wait: true
-    timeout: 600
-
   postgresql:
     namespace: postgresql
     enabled: true
     chart: stable/postgresql
-    version: 3.18.3
+    version: 5.0.0
     name: postgresql
     priority: -16
     purge: true
     wait: true
+    timeout: 600
     valuesFile: ./postgresql-values.yaml
 
   keycloak:
