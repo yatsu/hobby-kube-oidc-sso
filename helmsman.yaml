@@ -123,24 +123,13 @@ apps:
     wait: false
     valuesFile: ./ambassador-values.yaml
 
-  redis-pvc:
-    namespace: redis
-    enabled: true
-    chart: ./redis-pvc
-    version: 0.1.0
-    name: redis-pvc
-    priority: -17
-    purge: true
-    wait: true
-    timeout: 600
-
   redis:
     namespace: redis
     enabled: true
     chart: stable/redis
-    version: 7.0.0
+    version: 8.0.1
     name: redis
-    priority: -16
+    priority: -15
     purge: true
     wait: true
     valuesFile: ./redis-values.yaml
@@ -151,7 +140,7 @@ apps:
     chart: stable/postgresql
     version: 5.0.0
     name: postgresql
-    priority: -16
+    priority: -15
     purge: true
     wait: true
     timeout: 600
@@ -163,7 +152,7 @@ apps:
     chart: stable/keycloak
     version: 4.10.1
     name: keycloak
-    priority: -13
+    priority: -14
     purge: true
     wait: true
     timeout: 600
@@ -178,7 +167,7 @@ apps:
     chart: ./a8r-oidc-auth-service
     version: 0.1.0
     name: a8r-oidc-auth-service
-    priority: -12
+    priority: -13
     purge: true
     wait: true
     valuesFile: ./a8r-oidc-auth-service-values.yaml
@@ -201,7 +190,7 @@ apps:
     chart: ./a8r-oidc-auth-service-activation
     version: 0.1.0
     name: a8r-oidc-auth-service-activation
-    priority: -11
+    priority: -12
     purge: true
     wait: false
     setString:
@@ -215,7 +204,7 @@ apps:
     chart: ./example-app
     version: 0.1.0
     name: example-foo
-    priority: -12
+    priority: -11
     purge: true
     wait: false
     valuesFile: ./example-foo-values.yaml
@@ -226,7 +215,7 @@ apps:
     chart: ./example-app
     version: 0.1.0
     name: example-bar
-    priority: -12
+    priority: -11
     purge: true
     wait: false
     valuesFile: ./example-bar-values.yaml

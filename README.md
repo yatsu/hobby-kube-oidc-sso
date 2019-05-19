@@ -174,27 +174,18 @@ export OIDC_CLIENT_ID="example"
 
 Now you can execute Helmsman, but you cannot release all apps at the first time, because Ambassador AuthService (`a8r-oidc-auth-service`) requires a OIDC client setting in your Keycloak instance.
 
-So edit `helmsman.yaml` to disable `a8r-oidc-auth-service` and `a8r-oidc-auth-service-activation`:
+Check that `a8r-oidc-auth-service` and `a8s-oidc-auth-service-activation` are disabled in ` helmsman.yaml`.
 
-```diff
-@@ -193,7 +193,7 @@
- 
+```yaml
    a8r-oidc-auth-service:
-     namespace: auth
--    enabled: true
-+    enabled: false
-     chart: ./a8r-oidc-auth-service
-     version: 0.1.0
-     name: a8r-oidc-auth-service
-@@ -216,7 +216,7 @@
+     # ...
+     enabled: false
+     # ...
  
    a8r-oidc-auth-service-activation:
-     namespace: auth
--    enabled: true
-+    enabled: false
-     chart: ./a8r-oidc-auth-service-activation
-     version: 0.1.0
-     name: a8r-oidc-auth-service-activation
+     # ...
+     enabled: false
+     # ...
 ```
 
 Execute helmsman:

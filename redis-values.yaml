@@ -2,9 +2,6 @@ cluster:
   enabled: true
   slaveCount: 1
 
-persistence:
-  existingClaim: redis-pvc
-
 master:
   persistence:
     enabled: true
