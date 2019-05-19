@@ -16,6 +16,7 @@ keycloak:
         prefix: /auth/
         rewrite: ""
         service: keycloak-http.keycloak
+        bypass_auth: true
 
   persistence:
     dbVendor: postgres
