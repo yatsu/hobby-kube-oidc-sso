@@ -2,4 +2,4 @@ ingressShim:
   defaultIssuerName: letsencrypt
 
 extraArgs:
-  - --cluster-resource-namespace=cert-manager
+  - --cluster-resource-namespace=ambassador
